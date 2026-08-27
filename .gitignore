@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.local.example
+*.log
+
+# TypeScript build info
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db

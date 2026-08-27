@@ -1,0 +1,421 @@
+@import "tailwindcss";
+
+/* ============================================================
+   ShopFlow Design System — "Midnight Aurora"
+   An advanced, high-contrast commerce interface: deep obsidian
+   surfaces, aurora light fields, frosted glass chrome, gradient
+   signal accents and precision micro-motion. Every page consumes
+   tokens only, so the whole product shifts from one file.
+   ============================================================ */
+
+@theme {
+  --font-display: "Space Grotesk", "Geist", system-ui, sans-serif;
+  --font-body: "Inter", "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* Surfaces (light paper stack) */
+  --color-paper: #ffffff;
+  --color-paper-dim: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-surface-hi: #f8f9fc;
+  --color-ink: #0e1120;
+  --color-ink-soft: #626a85;
+  --color-line: #e5e8f0;
+
+  /* Brand — electric indigo/violet */
+  --color-brand: #7c6cff;
+  --color-brand-dark: #5b49f0;
+  --color-brand-soft: #eeecff;
+  --color-brand-glow: #a78bfa;
+
+  /* Signal — warm amber for merchandising */
+  --color-signal: #f9a03f;
+  --color-signal-soft: #fff3e2;
+
+  /* Status */
+  --color-ok: #12a06a;
+  --color-ok-soft: #e6f8f0;
+  --color-danger: #e0384c;
+  --color-danger-soft: #fdeaec;
+
+  /* Console (admin / delivery) */
+  --color-console: #f7f8fc;
+  --color-console-soft: #ffffff;
+  --color-console-line: #e5e8f0;
+
+  --shadow-soft: 0 1px 2px rgba(16, 20, 40, 0.05), 0 12px 30px -18px rgba(16, 20, 40, 0.28);
+  --shadow-lift: 0 2px 6px rgba(16, 20, 40, 0.07), 0 28px 55px -22px rgba(124, 108, 255, 0.42);
+  --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--color-brand) 35%, transparent),
+                 0 12px 34px -14px color-mix(in srgb, var(--color-brand) 55%, transparent);
+
+  --gradient-brand: linear-gradient(120deg, #7c6cff 0%, #a78bfa 45%, #f9a03f 130%);
+  --gradient-sheen: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.35) 50%, transparent 80%);
+}
+
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  color-scheme: light;
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Global aurora + grain field behind everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 12% -5%, color-mix(in srgb, var(--color-brand) 12%, transparent), transparent 65%),
+    radial-gradient(45% 35% at 92% 2%, color-mix(in srgb, var(--color-signal) 10%, transparent), transparent 65%),
+    radial-gradient(55% 45% at 50% 108%, color-mix(in srgb, var(--color-brand-glow) 10%, transparent), transparent 70%);
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: white;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand) 40%, transparent);
+  border-radius: 999px;
+  border: 2px solid var(--color-paper);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand); }
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-glow);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ============================================================
+   Text helpers
+   ============================================================ */
+.text-gradient {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+/* ============================================================
+   Ambient mesh background — storefront hero surfaces
+   ============================================================ */
+.mesh-bg {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 70%, transparent), transparent);
+}
+.mesh-bg::before {
+  content: "";
+  position: absolute;
+  inset: -30% -15%;
+  z-index: -1;
+  background:
+    radial-gradient(38% 45% at 18% 12%, color-mix(in srgb, var(--color-brand) 26%, transparent), transparent 70%),
+    radial-gradient(32% 38% at 82% 4%, color-mix(in srgb, var(--color-signal) 22%, transparent), transparent 70%),
+    radial-gradient(48% 42% at 50% 104%, color-mix(in srgb, var(--color-brand-glow) 22%, transparent), transparent 70%);
+  filter: blur(60px);
+  animation: mesh-drift 20s ease-in-out infinite alternate;
+}
+/* Fine grid overlay for a technical, engineered feel */
+.mesh-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-ink) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-ink) 7%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent 100%);
+}
+@keyframes mesh-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(2%, -3%, 0) scale(1.08); }
+}
+
+/* ============================================================
+   Primitives
+   ============================================================ */
+.glass {
+  background: color-mix(in srgb, #ffffff 78%, transparent);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+}
+
+.card {
+  position: relative;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface-hi) 90%, transparent), var(--color-surface));
+  border: 1px solid var(--color-line);
+  border-radius: 1.15rem;
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+/* Top hairline highlight — reads as real material */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-ink) 8%, transparent), transparent);
+  pointer-events: none;
+}
+.card:hover {
+  border-color: color-mix(in srgb, var(--color-brand) 45%, var(--color-line));
+}
+
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* Sheen sweep on hover for all filled buttons */
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-sheen);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+.btn:hover:not(:disabled)::after { transform: translateX(120%); }
+
+.btn-primary {
+  background: var(--gradient-brand);
+  background-size: 180% 100%;
+  color: #ffffff;
+  box-shadow: var(--shadow-glow);
+}
+.btn-primary:hover:not(:disabled) {
+  background-position: 100% 0;
+  box-shadow: var(--shadow-lift);
+}
+
+.btn-accent {
+  background: var(--color-brand);
+  color: #ffffff;
+  box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--color-brand) 80%, transparent);
+}
+.btn-accent:hover:not(:disabled) {
+  background: var(--color-brand-dark);
+  box-shadow: var(--shadow-lift);
+}
+
+.btn-ghost {
+  background: color-mix(in srgb, var(--color-surface-hi) 80%, transparent);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--color-surface-hi);
+  border-color: color-mix(in srgb, var(--color-brand) 50%, var(--color-line));
+  color: var(--color-ink);
+}
+
+.btn-danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 40%, transparent);
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper-dim);
+  padding: 0.68rem 0.9rem;
+  font-size: 0.9rem;
+  color: var(--color-ink);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+.input-field:focus {
+  outline: none;
+  background: var(--color-surface-hi);
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-brand) 22%, transparent);
+}
+.input-field::placeholder { color: color-mix(in srgb, var(--color-ink-soft) 80%, transparent); }
+.input-field option { background: var(--color-surface); color: var(--color-ink); }
+
+.label-field {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+/* Console (admin / delivery) shell */
+.console-shell {
+  background: var(--color-console);
+  color: var(--color-ink);
+}
+.console-card {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-console-soft) 92%, transparent), var(--color-console));
+  border: 1px solid var(--color-console-line);
+  border-radius: 1.15rem;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Divider with a lit center */
+.rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-line), transparent);
+}
+
+/* ============================================================
+   Motion — respects reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-rise { animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-fade { animation: fade 0.4s ease both; }
+  .stagger > * { animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .stagger > *:nth-child(1) { animation-delay: 0.02s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.06s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.10s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.14s; }
+  .stagger > *:nth-child(5) { animation-delay: 0.18s; }
+  .stagger > *:nth-child(6) { animation-delay: 0.22s; }
+  .stagger > *:nth-child(7) { animation-delay: 0.26s; }
+  .stagger > *:nth-child(8) { animation-delay: 0.30s; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 60%, transparent); }
+  100% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--color-brand) 0%, transparent); }
+}
+.pulse-badge { animation: pulse-ring 1.6s ease-out infinite; }
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float { animation: float-y 6s ease-in-out infinite; }
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--color-paper-dim) 25%, var(--color-surface-hi) 37%, var(--color-paper-dim) 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+  border: 1px solid var(--color-line);
+}
+
+/* ==========================================================================
+   Cursor affordances - make sure every interactive element shows a hand
+   cursor. Tailwind's preflight already covers <button>/[role="button"], but
+   several native controls (select, checkboxes, radios, labels tied to a
+   hidden file input) don't get one by default in most browsers, and this
+   makes the behavior explicit and consistent regardless of preflight version.
+   Anything custom (e.g. a clickable <div>/<tr>) should get the .cursor-pointer
+   utility class directly in its markup.
+   ========================================================================== */
+button:not(:disabled),
+a[href],
+select,
+summary,
+input[type='checkbox'],
+input[type='radio'],
+label[for],
+[role='button']:not([aria-disabled='true']),
+.cursor-pointer {
+  cursor: pointer;
+}
+button:disabled,
+select:disabled,
+input:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
