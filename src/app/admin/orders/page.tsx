@@ -10,6 +10,7 @@ import { useConfirm } from '@/components/ConfirmProvider';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import Tooltip from '@/components/Tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Order, DeliveryBoy } from '@/types';
 
 interface AdminOrder extends Order {
@@ -381,23 +382,23 @@ export default function AdminOrdersPage() {
 
                     {['PAID', 'PROCESSING'].includes(order.status) && (
                       <div className="flex items-center justify-end gap-2">
-                        <select
+                        <Select
                           value={selectedDriver[order.id] || ''}
-                          onChange={(e) =>
-                            setSelectedDriver((prev) => ({
-                              ...prev,
-                              [order.id]: e.target.value,
-                            }))
+                          onValueChange={(v: string) =>
+                            setSelectedDriver((prev) => ({ ...prev, [order.id]: v }))
                           }
-                          className="input-field w-32 py-1.5 text-xs"
                         >
-                          <option value="">Assign to...</option>
-                          {deliveryBoys.map((d) => (
-                            <option key={d.id} value={d.id}>
-                              {d.firstName || d.email}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="w-32 py-1.5 text-xs">
+                            <SelectValue placeholder="Assign to..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {deliveryBoys.map((d) => (
+                              <SelectItem key={d.id} value={d.id}>
+                                {d.firstName || d.email}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <button
                           onClick={() => assignDelivery(order)}
                           disabled={actingOn === order.id}

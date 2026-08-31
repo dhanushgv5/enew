@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/auth';
 import { useConfirm } from '@/components/ConfirmProvider';
 import StatCard from '@/components/StatCard';
 import ReviewStars from '@/components/ReviewStars';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Product, Review } from '@/types';
 
 const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace(/\/api\/?$/, '');
@@ -139,18 +140,19 @@ export default function AdminReviewsPage() {
           />
         </div>
 
-        <select
-          value={productFilter}
-          onChange={(e) => onFilterProduct(e.target.value)}
-          className="input-field w-full max-w-xs"
-        >
-          <option value="">All products</option>
-          {products.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <Select value={productFilter || 'ALL'} onValueChange={(v: string) => onFilterProduct(v === 'ALL' ? '' : v)}>
+          <SelectTrigger className="max-w-xs">
+            <SelectValue placeholder="All products" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All products</SelectItem>
+            {products.map((p) => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {filtered.length === 0 ? (

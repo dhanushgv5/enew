@@ -10,6 +10,7 @@ import {
   XCircle,
   ImageOff,
   Search,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { getSocket } from '@/lib/socket';
@@ -17,6 +18,9 @@ import { useAuthStore } from '@/store/auth';
 import { useConfirm } from '@/components/ConfirmProvider';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import Calendar from '@/components/ui/calendar';
 import type { DeliveryBoy, ReturnRequest, ReturnRequestStatus } from '@/types';
 
 const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace(/\/api\/?$/, '');
@@ -245,17 +249,18 @@ export default function AdminReturnsPage() {
             className="w-full h-9 rounded-xl border border-gray-300 bg-white pl-12 pr-4 text-gray-900 placeholder:text-gray-500 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => changeFilter(e.target.value as ReturnRequestStatus | '')}
-          className="input-field w-full max-w-xs"
-        >
-          {FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
+        <Select value={statusFilter || 'ALL'} onValueChange={(v: string) => changeFilter(v === 'ALL' ? '' : (v as ReturnRequestStatus))}>
+          <SelectTrigger className="max-w-xs">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            {FILTERS.map((f) => (
+              <SelectItem key={f.value} value={f.value || 'ALL'}>
+                {f.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {filtered.length === 0 ? (
@@ -366,29 +371,50 @@ export default function AdminReturnsPage() {
                   <div className="mt-4 space-y-2 border-t border-[color:var(--color-line)] pt-4">
                     <p className="text-xs font-semibold text-[color:var(--color-ink)]">Schedule pickup</p>
                     <div className="flex flex-wrap items-center gap-2">
-                      <input
-                        type="date"
-                        min={new Date().toISOString().slice(0, 10)}
-                        value={pickupDateInputs[request.id] || ''}
-                        onChange={(e) =>
-                          setPickupDateInputs((prev) => ({ ...prev, [request.id]: e.target.value }))
-                        }
-                        className="input-field w-40 py-1.5 text-xs"
-                      />
-                      <select
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="input-field flex w-40 items-center gap-2 py-1.5 text-xs"
+                          >
+                            <CalendarIcon className="h-3.5 w-3.5 text-[color:var(--color-ink-soft)]" />
+                            {pickupDateInputs[request.id]
+                              ? new Date(pickupDateInputs[request.id]).toLocaleDateString()
+                              : 'Pick a date'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto">
+                          <Calendar
+                            selected={pickupDateInputs[request.id] ? new Date(pickupDateInputs[request.id]) : undefined}
+                            disabled={(date) => date < new Date(new Date().toDateString())}
+                            onSelect={(date) =>
+                              setPickupDateInputs((prev) => ({
+                                ...prev,
+                                [request.id]: date.toISOString().slice(0, 10),
+                              }))
+                            }
+                          />
+                        </PopoverContent>
+                      </Popover>
+
+                      <Select
                         value={pickupDriverInputs[request.id] || ''}
-                        onChange={(e) =>
-                          setPickupDriverInputs((prev) => ({ ...prev, [request.id]: e.target.value }))
+                        onValueChange={(v: string) =>
+                          setPickupDriverInputs((prev) => ({ ...prev, [request.id]: v }))
                         }
-                        className="input-field w-40 py-1.5 text-xs"
                       >
-                        <option value="">Assign to...</option>
-                        {deliveryBoys.map((d) => (
-                          <option key={d.id} value={d.id}>
-                            {d.firstName || d.email}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="w-40 py-1.5 text-xs">
+                          <SelectValue placeholder="Assign to..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {deliveryBoys.map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              {d.firstName || d.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
                       <button
                         onClick={() => schedulePickup(request)}
                         disabled={actingOn === request.id}

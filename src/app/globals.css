@@ -419,3 +419,27 @@ input:disabled,
 [aria-disabled='true'] {
   cursor: not-allowed;
 }
+
+/* ==========================================================================
+   Radix primitive open/close animation (used by our Select + Popover
+   components). Radix sets data-state="open" | "closed" on the content
+   element itself - we just key CSS keyframes off that attribute directly,
+   no animation plugin required.
+   ========================================================================== */
+.radix-popover-anim {
+  transform-origin: var(--radix-select-content-transform-origin, var(--radix-popover-content-transform-origin));
+}
+.radix-popover-anim[data-state='open'] {
+  animation: radix-pop-in 0.15s ease-out;
+}
+.radix-popover-anim[data-state='closed'] {
+  animation: radix-pop-out 0.1s ease-in;
+}
+@keyframes radix-pop-in {
+  from { opacity: 0; transform: scale(0.96) translateY(-2px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes radix-pop-out {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.96) translateY(-2px); }
+}
