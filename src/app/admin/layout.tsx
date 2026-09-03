@@ -11,6 +11,7 @@ import {
   ShieldHalf,
   MessageSquareText,
   RotateCcw,
+  LayoutDashboard,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 import Tooltip from '@/components/Tooltip';
@@ -18,12 +19,20 @@ import { useConfirm } from '@/components/ConfirmProvider';
 import Logo from '@/components/Logo';
 
 const NAV_ITEMS = [
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/admin/returns', label: 'Returns', icon: RotateCcw },
   { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareText },
   { href: '/admin/delivery-boys', label: 'Delivery Boys', icon: Truck },
 ];
+
+// '/admin' itself needs an exact match - otherwise it'd also light up as
+// "active" on every other admin route, since they all start with '/admin'.
+function isNavActive(pathname: string | null, href: string) {
+  if (!pathname) return false;
+  return href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
+}
 
 export default function AdminLayout({
   children,
@@ -117,7 +126,7 @@ export default function AdminLayout({
 
           <nav className="mt-6 flex flex-col gap-1">
             {NAV_ITEMS.map((item) => {
-              const active = pathname?.startsWith(item.href);
+              const active = isNavActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
@@ -162,7 +171,7 @@ export default function AdminLayout({
       {/* ========================= */}
       <div className="console-shell flex gap-1 overflow-x-auto px-4 py-3 lg:hidden">
         {NAV_ITEMS.map((item) => {
-          const active = pathname?.startsWith(item.href);
+          const active = isNavActive(pathname, item.href);
           return (
             <Link
               key={item.href}

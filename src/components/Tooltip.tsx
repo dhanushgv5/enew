@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, useState, type ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface Props {
   /** The text shown inside the tooltip bubble. */
@@ -48,7 +49,7 @@ export default function Tooltip({ content, children, side = 'top', className = '
 
   return (
     <span
-      className={`relative inline-flex ${className}`}
+      className={cn('relative inline-flex', className)}
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}

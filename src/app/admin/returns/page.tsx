@@ -70,9 +70,11 @@ export default function AdminReturnsPage() {
   const loadRequests = async (status?: ReturnRequestStatus | '') => {
     try {
       const { data } = await api.get('/returns/admin/all', {
-        params: status ? { status } : {},
+        params: { limit: 100, ...(status && { status }) },
       });
-      setRequests(data);
+      // Backend now returns { items, meta } for pagination - tolerate the
+      // old plain-array shape too in case anything's still mid-deploy.
+      setRequests(Array.isArray(data) ? data : data.items || []);
     } catch (e: any) {
       toast.error(e.response?.data?.message || 'Failed to load return requests');
     } finally {

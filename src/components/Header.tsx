@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import { useCartStore } from '@/store/cart';
+import { useWishlistStore } from '@/store/wishlist';
 import { useConfirm } from './ConfirmProvider';
 import Tooltip from './Tooltip';
 import { ShoppingCart, LogOut, Menu, X } from 'lucide-react';
@@ -14,6 +15,7 @@ import Logo from './Logo';
 export default function Header() {
   const { user, logout } = useAuthStore();
   const { itemCount, refreshCount, setItemCount } = useCartStore();
+  const { refresh: refreshWishlist } = useWishlistStore();
   const confirm = useConfirm();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -46,6 +48,7 @@ export default function Header() {
   useEffect(() => {
     if (isShopper) {
       refreshCount();
+      refreshWishlist();
     } else {
       setItemCount(0);
     }
@@ -69,6 +72,7 @@ export default function Header() {
   if (isShopper) {
     navLinks.push({ href: '/orders', label: 'My Orders' });
     navLinks.push({ href: '/returns', label: 'Returns' });
+    navLinks.push({ href: '/wishlist', label: 'Wishlist' });
   }
   if (isAdminStaff) {
     navLinks.push({ href: '/admin/orders', label: 'Orders' });

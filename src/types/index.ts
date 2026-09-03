@@ -119,6 +119,40 @@ export interface ReviewSummary {
   distribution: Record<'1' | '2' | '3' | '4' | '5', number>;
 }
 
+export interface WishlistItem {
+  id: string;
+  userId: string;
+  productId: string;
+  createdAt: string;
+  product: Product;
+}
+
+export interface DashboardOverview {
+  revenue: { today: number; thisWeek: number; thisMonth: number; allTime: number };
+  orders: { total: number; byStatus: Record<string, number> };
+  products: { total: number; lowStockCount: number; outOfStock: number };
+  lowStockProducts: { id: string; name: string; slug: string; stock: number; images: string[] }[];
+  returns: { pending: number };
+  reviews: { total: number; average: number };
+  customers: { total: number };
+  recentOrders: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    total: string | number;
+    createdAt: string;
+    user: { firstName?: string; lastName?: string; email: string };
+  }[];
+  recentReviews: {
+    id: string;
+    rating: number;
+    title?: string | null;
+    createdAt: string;
+    product: { id: string; name: string; slug: string };
+    user: { firstName?: string; lastName?: string };
+  }[];
+}
+
 export interface DeliveryBoy {
   id: string;
   email: string;

@@ -1,7 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ImageOff, ArrowUpRight } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { ImageOff, ArrowUpRight, Heart } from 'lucide-react';
+import { useAuthStore } from '@/store/auth';
+import { useWishlistStore } from '@/store/wishlist';
+import Tooltip from '@/components/Tooltip';
 import type { Product } from '@/types';
 
 interface Props {
@@ -9,6 +13,24 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
+  const { user } = useAuthStore();
+  const { isWishlisted, toggle } = useWishlistStore();
+  const wishlisted = isWishlisted(product.id);
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault(); // don't navigate to the product page
+    e.stopPropagation();
+    if (!user) {
+      toast.error('Log in to save items to your wishlist.');
+      return;
+    }
+    try {
+      await toggle(product.id);
+    } catch {
+      toast.error('Failed to update wishlist.');
+    }
+  };
+
   const price = Number(product.price);
   const compare = product.compareAtPrice ? Number(product.compareAtPrice) : null;
   const available = product.stock - (product.reservedStock || 0);
@@ -47,8 +69,27 @@ export default function ProductCard({ product }: Props) {
           </span>
         )}
 
+        {/* wishlist toggle */}
+        <Tooltip
+          content={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+          side="left"
+          className="absolute right-3 top-3 z-10"
+        >
+          <button
+            onClick={handleWishlist}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+            className={`flex h-8 w-8 items-center justify-center rounded-full backdrop-blur transition-colors ${
+              wishlisted
+                ? 'bg-[color:var(--color-danger)] text-white'
+                : 'bg-[color:var(--color-surface)]/80 text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-danger)]'
+            }`}
+          >
+            <Heart className="h-4 w-4" fill={wishlisted ? 'currentColor' : 'none'} strokeWidth={wishlisted ? 0 : 2} />
+          </button>
+        </Tooltip>
+
         {/* quick-view affordance */}
-        <span className="pointer-events-none absolute right-3 top-3 flex h-8 w-8 translate-y-2 items-center justify-center rounded-full bg-[color:var(--color-surface)]/80 text-[color:var(--color-ink)] opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="pointer-events-none absolute right-3 top-12 flex h-8 w-8 translate-y-2 items-center justify-center rounded-full bg-[color:var(--color-surface)]/80 text-[color:var(--color-ink)] opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <ArrowUpRight className="h-4 w-4" />
         </span>
 

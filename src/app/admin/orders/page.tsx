@@ -52,12 +52,19 @@ export default function AdminOrdersPage() {
   // Which order row currently has its shipping address expanded.
   const [expandedAddressId, setExpandedAddressId] = useState<string | null>(null);
 
+  // How many orders to fetch on each (re)load - "Load more" just bumps
+  // this and reloads, so every other caller of loadOrders() (mutations,
+  // socket updates) keeps working exactly as before without needing to
+  // know about pages.
+  const [loadLimit, setLoadLimit] = useState(50);
+  const [totalOrderCount, setTotalOrderCount] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   const loadOrders = async () => {
     try {
-      const { data } =
-        await api.get('/orders/admin/all');
-
-      setOrders(data);
+      const { data } = await api.get('/orders/admin/all', { params: { limit: loadLimit } });
+      setOrders(data.items || data); // tolerate either shape during rollout
+      setTotalOrderCount(data.meta?.total ?? (data.items || data).length);
     } catch (e: any) {
       toast.error(
         e.response?.data?.message ||
@@ -65,7 +72,13 @@ export default function AdminOrdersPage() {
       );
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+
+  const loadMore = () => {
+    setLoadingMore(true);
+    setLoadLimit((prev) => prev + 50);
   };
 
   const loadDeliveryBoys = async () => {
@@ -89,7 +102,7 @@ export default function AdminOrdersPage() {
       loadOrders();
       loadDeliveryBoys();
     }
-  }, [user, hasHydrated]);
+  }, [user, hasHydrated, loadLimit]);
 
   // Live updates: refresh the moment any order changes elsewhere (e.g. a
   // customer edits their shipping address) - no manual reload needed.
@@ -453,6 +466,21 @@ export default function AdminOrdersPage() {
           </tbody>
         </table>
       </div>
+
+      {orders.length < totalOrderCount && (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <p className="text-xs text-[color:var(--color-ink-soft)]">
+            Showing {orders.length} of {totalOrderCount} orders
+          </p>
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="btn btn-ghost px-6 py-2 text-sm"
+          >
+            {loadingMore ? 'Loading...' : 'Load more'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
