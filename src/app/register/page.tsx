@@ -72,7 +72,7 @@ export default function RegisterPage() {
                   <input
                     value={form.firstName}
                     onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                    className="input-field pl-9"
+                    className="w-full h-10 rounded-xl border border-gray-300 bg-white pl-12 pr-4 text-gray-900 placeholder:text-gray-500 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
                     placeholder="Jane"
                   />
                 </div>
@@ -82,7 +82,7 @@ export default function RegisterPage() {
                 <input
                   value={form.lastName}
                   onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                  className="input-field"
+                  className="w-full h-10 rounded-xl border border-gray-300 bg-white pl-12 pr-4 text-gray-900 placeholder:text-gray-500 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
                   placeholder="Doe"
                 />
               </div>
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="input-field pl-9"
+                  className="w-full h-10 rounded-xl border border-gray-300 bg-white pl-12 pr-4 text-gray-900 placeholder:text-gray-500 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
                   placeholder="you@example.com"
                 />
               </div>
@@ -111,7 +111,7 @@ export default function RegisterPage() {
                   minLength={8}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="input-field pl-9"
+                  className="w-full h-10 rounded-xl border border-gray-300 bg-white pl-12 pr-4 text-gray-900 placeholder:text-gray-500 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
                   placeholder="At least 8 characters"
                 />
               </div>
