@@ -86,6 +86,8 @@ export interface Order {
   deliveryBoyId?: string | null;
   deliveryBoy?: { id: string; email: string; firstName?: string; lastName?: string } | null;
   deliveredAt?: string | null;
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
   shippingAddress?: {
     firstName: string;
     lastName: string;

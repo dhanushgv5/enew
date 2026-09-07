@@ -11,6 +11,7 @@ import { useCartStore } from '@/store/cart';
 import { useConfirm } from '@/components/ConfirmProvider';
 import AddressFormFields from '@/components/AddressFormFields';
 import Tooltip from '@/components/Tooltip';
+import { payForOrder } from '@/lib/razorpay';
 import type { Cart, Address } from '@/types';
 
 const emptyAddressForm = {
@@ -127,12 +128,12 @@ export default function CartPage() {
     }
     const total = (Number(cart.subtotal) * 1.1 + 9.99).toFixed(2);
     const confirmed = await confirm({
-      title: 'Place order?',
+      title: 'Proceed to payment?',
       description:
-        `Place this order for $${total} (${cart.itemCount} item${cart.itemCount === 1 ? '' : 's'})?\n\n` +
+        `Pay $${total} for this order (${cart.itemCount} item${cart.itemCount === 1 ? '' : 's'})?\n\n` +
         `Deliver to: ${selectedAddress.street}, ${selectedAddress.city}\n\n` +
-        `This is a demo checkout - no real payment is charged yet.`,
-      confirmLabel: 'Place order',
+        `You'll be taken to Razorpay to complete payment.`,
+      confirmLabel: 'Pay Now',
     });
     if (!confirmed) return;
 
@@ -140,7 +141,7 @@ export default function CartPage() {
     isCheckingOutRef.current = true;
     setCheckingOut(true);
     try {
-      const { data } = await api.post('/orders', {
+      const { data: order } = await api.post('/orders', {
         shippingAddress: {
           firstName: selectedAddress.firstName,
           lastName: selectedAddress.lastName,
@@ -152,9 +153,34 @@ export default function CartPage() {
           phone: selectedAddress.phone || undefined,
         },
       });
-      toast.success('Order placed!');
       setItemCount(0);
-      router.push(`/orders`);
+
+      // Order is created PENDING (stock reserved). Open Razorpay immediately
+      // on top of the cart page rather than sending the customer to the
+      // order page first - payment happens as one continuous action instead
+      // of a separate "place order, then remember to go pay" step. The
+      // order is only PAID once the backend verifies the payment signature.
+      const customerName = user ? `${user.firstName} ${user.lastName}`.trim() : undefined;
+      try {
+        await payForOrder(
+          order.id,
+          customerName,
+          () => {
+            toast.success('Payment successful! Order confirmed.');
+            router.push(`/orders/${order.id}`);
+          },
+          () => {
+            toast('Order saved - you can complete payment anytime from your orders.', { icon: 'ℹ️' });
+            router.push(`/orders/${order.id}`);
+          },
+        );
+      } catch (payErr: any) {
+        // Order still exists as PENDING even if the payment step itself
+        // errored (e.g. Razorpay script hiccup) - send them to the order
+        // page where the Pay Now button lets them retry.
+        toast.error(payErr.response?.data?.message || payErr.message || 'Payment could not be started - you can retry from your order.');
+        router.push(`/orders/${order.id}`);
+      }
     } catch (e: any) {
       toast.error(e.response?.data?.message || 'Checkout failed');
     } finally {
@@ -370,10 +396,10 @@ export default function CartPage() {
             disabled={checkingOut || !selectedAddressId}
             className="btn btn-primary mt-6 w-full py-3 text-base"
           >
-            {checkingOut ? 'Processing...' : !selectedAddressId ? 'Add an address to continue' : 'Checkout'}
+            {checkingOut ? 'Processing...' : !selectedAddressId ? 'Add an address to continue' : 'Pay Now'}
           </button>
           <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-soft)]">
-            <ShieldCheck className="h-3.5 w-3.5" /> Secure demo checkout
+            <ShieldCheck className="h-3.5 w-3.5" /> Secured by Razorpay
           </p>
         </div>
       </div>

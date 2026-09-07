@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { ChevronLeft, MapPin, Clock, ImageOff, XCircle, Pencil, X, RotateCcw, ImagePlus, ExternalLink } from 'lucide-react';
+import { ChevronLeft, MapPin, Clock, ImageOff, XCircle, Pencil, X, RotateCcw, ImagePlus, ExternalLink, CreditCard } from 'lucide-react';
 import api from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 import { useAuthStore } from '@/store/auth';
@@ -12,6 +12,7 @@ import { useConfirm } from '@/components/ConfirmProvider';
 import StatusBadge from '@/components/StatusBadge';
 import AddressFormFields from '@/components/AddressFormFields';
 import { statusMeta } from '@/lib/status';
+import { payForOrder } from '@/lib/razorpay';
 import type { Order, ReturnRequest } from '@/types';
 
 // Mirrors CUSTOMER_CANCELLABLE_STATUSES on the backend - cancellation is
@@ -66,6 +67,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [paying, setPaying] = useState(false);
 
   // ---- Change address ----
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -159,6 +161,29 @@ export default function OrderDetailPage() {
       toast.error(e.response?.data?.message || 'Failed to cancel order');
     } finally {
       setCancelling(false);
+    }
+  };
+
+  const handlePay = async () => {
+    if (!order) return;
+    setPaying(true);
+    try {
+      const customerName = user ? `${user.firstName} ${user.lastName}`.trim() : undefined;
+      await payForOrder(
+        order.id,
+        customerName,
+        () => {
+          toast.success('Payment successful!');
+          loadOrder();
+        },
+        () => {
+          toast('Payment cancelled', { icon: 'ℹ️' });
+        },
+      );
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || e.message || 'Payment failed. Please try again.');
+    } finally {
+      setPaying(false);
     }
   };
 
@@ -301,6 +326,26 @@ export default function OrderDetailPage() {
           </div>
           <StatusBadge status={order.status} />
         </div>
+
+        {/* Payment - shown only while the order is awaiting payment */}
+        {order.status === 'PENDING' && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[color:var(--color-brand)]/30 bg-[color:var(--color-brand-soft)] p-4">
+            <div>
+              <p className="text-sm font-semibold text-[color:var(--color-ink)]">Payment pending</p>
+              <p className="text-sm text-[color:var(--color-ink-soft)]">
+                Complete payment of ${Number(order.total).toFixed(2)} to confirm this order.
+              </p>
+            </div>
+            <button
+              onClick={handlePay}
+              disabled={paying}
+              className="btn btn-primary px-5 py-2.5 text-sm"
+            >
+              <CreditCard className="h-4 w-4" />
+              {paying ? 'Opening payment...' : 'Pay Now'}
+            </button>
+          </div>
+        )}
 
         {/* Items */}
         <div className="mt-6 space-y-4 border-t border-[color:var(--color-line)] pt-6">

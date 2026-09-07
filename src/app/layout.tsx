@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Space_Grotesk, Inter, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
@@ -46,6 +47,7 @@ export default function RootLayout({
           }
           body { font-family: var(--font-body-src), "Inter", sans-serif; }
         `}</style>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <AuthHydrator />
         <GlobalAlert />
         <Toaster
