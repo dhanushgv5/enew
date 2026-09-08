@@ -55,6 +55,15 @@ export async function payForOrder(
     };
 
     const rzp = new window.Razorpay(options);
+
+    // Checkout.js fires this for actual declines (bad card, insufficient
+    // funds, etc.) - without listening for it, a real failure just sits in
+    // the modal with no signal back to the app until the user manually
+    // closes it (which would incorrectly read as "cancelled" via ondismiss).
+    rzp.on('payment.failed', (response: any) => {
+      reject(new Error(response?.error?.description || 'Payment failed'));
+    });
+
     rzp.open();
   });
 }
