@@ -44,8 +44,6 @@ export default function HomePage() {
       {/* ========================= */}
       <section className="mesh-bg -mx-4 rounded-[2.25rem] px-6 py-24 text-center sm:-mx-6 sm:px-10 lg:-mx-8">
         <span className="animate-rise chip mx-auto bg-[color:var(--color-brand-soft)] text-[color:var(--color-brand-glow)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-ok)]" />
-          Built with NestJS + Next.js
         </span>
         <h1 className="animate-rise mt-6 font-display text-4xl font-bold tracking-tight text-[color:var(--color-ink)] sm:text-7xl">
           Commerce, run the

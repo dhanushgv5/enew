@@ -9,7 +9,9 @@ declare global {
 /**
  * Opens Razorpay Checkout for an existing PENDING order.
  * Calls onSuccess() once the payment is verified server-side (order is PAID by then).
- * Calls onDismiss() if the user closes the modal without paying.
+ * Calls onDismiss() after the modal is closed without paying - by then the
+ * order has also been cancelled server-side (see below), so its reserved
+ * stock is released rather than sitting stuck against an abandoned order.
  */
 export async function payForOrder(
   orderId: string,
@@ -23,6 +25,16 @@ export async function payForOrder(
 
   const { data } = await api.post(`/orders/${orderId}/razorpay/order`);
 
+  // Razorpay's ondismiss can fire in situations beyond "closed without
+  // paying" - including, in some flows, after handler has already fired
+  // for a real successful payment (the modal-closed event and the
+  // payment-succeeded event are tracked separately by Checkout.js). If
+  // ondismiss ran the cancel logic in that case, it would cancel a real,
+  // paid order and restore stock that was legitimately sold, while
+  // Razorpay has already captured the money. This flag closes that gap:
+  // once handler has started, ondismiss becomes a no-op.
+  let paymentHandled = false;
+
   return new Promise<void>((resolve, reject) => {
     const options = {
       key: data.keyId,
@@ -34,12 +46,31 @@ export async function payForOrder(
       prefill: customerName ? { name: customerName } : undefined,
       theme: { color: '#000000' },
       modal: {
-        ondismiss: () => {
+        ondismiss: async () => {
+          if (paymentHandled) return;
+
+          // The customer closed the checkout without paying - the order
+          // would otherwise sit PENDING forever with its stock reserved
+          // and no way for anyone else to buy it. Cancel it so that
+          // reservation is released back to available stock, same as the
+          // "Cancel order" button does. Best-effort: if this fails (e.g.
+          // a network blip), we still resolve so the UI doesn't hang -
+          // the order just stays PENDING and the customer (or the "Cancel
+          // order" button) can retry later.
+          try {
+            await api.patch(`/orders/${orderId}/status`, {
+              status: 'CANCELLED',
+              note: 'Payment cancelled - checkout closed before completing payment',
+            });
+          } catch {
+            // swallow - see comment above
+          }
           onDismiss?.();
           resolve();
         },
       },
       handler: async (response: any) => {
+        paymentHandled = true;
         try {
           await api.post(`/orders/${orderId}/razorpay/verify`, {
             razorpayOrderId: response.razorpay_order_id,
