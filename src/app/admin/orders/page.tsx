@@ -297,6 +297,7 @@ export default function AdminOrdersPage() {
 
       <div className="card overflow-hidden">
 
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
 
           <thead className="bg-[color:var(--color-paper-dim)] text-[color:var(--color-ink-soft)]">
@@ -465,6 +466,7 @@ export default function AdminOrdersPage() {
 
           </tbody>
         </table>
+        </div>
       </div>
 
       {orders.length < totalOrderCount && (

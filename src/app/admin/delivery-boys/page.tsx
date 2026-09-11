@@ -212,6 +212,7 @@ export default function AdminDeliveryBoysPage() {
       )}
 
       <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-[color:var(--color-paper-dim)] text-[color:var(--color-ink-soft)]">
             <tr>
@@ -343,6 +344,7 @@ export default function AdminDeliveryBoysPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
